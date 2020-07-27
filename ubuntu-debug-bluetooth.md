@@ -1,3 +1,7 @@
+I had problems with bluetooth the following information was taken from:
+
+https://superuser.com/questions/1310775/bluetooth-adapter-not-detected-on-linux
+
 Some commands
 
 ```bash
@@ -41,8 +45,6 @@ blueman-manager
 sudo apt insatll rtbth-dkms
 ```
 
-Ref: https://superuser.com/questions/1310775/bluetooth-adapter-not-detected-on-linux
-
 ```bash
 sudo apt install --reinstall -y \
     bluetooth \
@@ -60,3 +62,21 @@ sudo pactl load-module module-bluetooth-discover
 sudo service bluetooth force-reload
 sudo service bluetooth restart
 ```
+
+
+# Solution
+
+The main problems wasn't be the drivers or libraries, the main problem indeed was related with the login process.
+
+Here: https://bugs.launchpad.net/ubuntu/+source/pulseaudio/+bug/1877194
+and here: https://bugs.launchpad.net/ubuntu/+source/pulseaudio/+bug/1847570
+
+>> We configure PulseAudio by default to automatically choose hotplugged
+>> devices so it might be thinking booting with USB counts as hotplugging.
+>> To avoid this you should just be able to comment out:
+
+>>   `load-module module-switch-on-connect`
+
+>> from `/etc/pulse/default.pa` Changed in pulseaudio (Ubuntu):
+
+Now it works!
