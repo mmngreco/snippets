@@ -1,0 +1,38 @@
+# pip install pytest-check
+import httpx
+import numpy as np
+from pandas.testing import assert_frame_equal
+from pytest_check import check
+import pandas as pd
+
+
+HELPERS = [np.testing.assert_almost_equal, pd.testing.assert_frame_equal]
+def add_helper_factory(helpers=HELPERS):
+    for helper in helpers:
+        globals()[helper.__name__] = check.check_func(helper)
+
+add_helper_factory()
+
+
+def test_httpx_get_with_helpers():
+    r = httpx.get('https://www.example.org/')
+    assert r.status_code == 200
+    check.is_false(r.is_redirect)
+    check.equal(r.encoding, 'utf-8')
+    check.is_in('Example Domain', r.text)
+
+
+def test_numpy():
+    a = np.array([1, 2, 3])
+    b = np.array([1, 2, 3])
+    assert_almost_equal(a, b)
+
+
+def test_pandas():
+    df = pd.DataFrame({'a': [1, 2, 3], 'b': [4, 5, 6]})
+    df2 = pd.DataFrame({'a': [1, 2, 3], 'b': [4, 5, 7]})
+    assert_frame_equal(df, df2)
+
+    df = pd.DataFrame({'a': [1, 2, 3], 'b': [4, 5, 6]})
+    df2 = pd.DataFrame({'a': [1, 2, 3], 'b': [4, 5, 8]})
+    assert_frame_equal(df, df2)
